@@ -579,6 +579,13 @@ func (h *Handler) ArtistRegenerateAI(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			// Governing: #349 — persist TypedTags from regenerate handler
+			if len(data.TypedTags) > 0 && h.MetadataSvc != nil {
+				if err := h.MetadataSvc.UpsertTypedTags(r.Context(), u.ID, "artist", a.ID, data.TypedTags); err != nil {
+					h.Logger.Error("failed to upsert typed tags during artist regeneration", "error", err, "artist", a.Name)
+				}
+			}
+
 			h.Logger.Info("regenerated AI content for artist", "artist", a.Name)
 		}
 	}

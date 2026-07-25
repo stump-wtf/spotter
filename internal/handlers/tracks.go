@@ -370,6 +370,14 @@ func (h *Handler) TrackRegenerateAI(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			// Governing: #349 — persist TypedTags from regenerate handler
+			// so regenerated tags are immediately visible in the taxonomy.
+			if len(data.TypedTags) > 0 && h.MetadataSvc != nil {
+				if err := h.MetadataSvc.UpsertTypedTags(r.Context(), u.ID, "track", t.ID, data.TypedTags); err != nil {
+					h.Logger.Error("failed to upsert typed tags during track regeneration", "error", err, "track", t.Name)
+				}
+			}
+
 			h.Logger.Info("regenerated AI content for track", "track", t.Name)
 		}
 	}

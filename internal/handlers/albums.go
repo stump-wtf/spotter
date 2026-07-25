@@ -433,6 +433,13 @@ func (h *Handler) AlbumRegenerateAI(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			// Governing: #349 — persist TypedTags from regenerate handler
+			if len(data.TypedTags) > 0 && h.MetadataSvc != nil {
+				if err := h.MetadataSvc.UpsertTypedTags(r.Context(), u.ID, "album", a.ID, data.TypedTags); err != nil {
+					h.Logger.Error("failed to upsert typed tags during album regeneration", "error", err, "album", a.Name)
+				}
+			}
+
 			h.Logger.Info("regenerated AI content for album", "album", a.Name)
 		}
 	}

@@ -1,11 +1,12 @@
 // Governing: SPEC-0014 REQ "Enricher Integration", SPEC-0014 REQ "Denormalized Entity Tags Table",
-// SPEC-0014 REQ "Data Migration"
+// SPEC-0014 REQ "Data Migration", SPEC-0014 REQ "Tag Normalization"
 package tags
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"spotter/ent"
 	"spotter/ent/tag"
@@ -22,42 +23,31 @@ type TypedTag struct {
 // UpsertTagsForEntity creates or retrieves Tag entities for the given typed tags,
 // associates them with the specified entity via Ent edges, and maintains the
 // denormalized entity_tags table. Idempotent: safe to call multiple times.
-// Governing: SPEC-0014 REQ "Enricher Integration", SPEC-0014 REQ "Denormalized Entity Tags Table"
+// Governing: SPEC-0014 REQ "Enricher Integration", SPEC-0014 REQ "Denormalized Entity Tags Table",
+// SPEC-0014 REQ "Tag Normalization"
 func UpsertTagsForEntity(ctx context.Context, client *ent.Client, db *sql.DB, userID int, entityType string, entityID int, typed []TypedTag) error {
 	for _, tt := range typed {
 		if tt.Name == "" {
 			continue
 		}
 
-		normalized := Normalize(tt.Name)
+		// Governing: SPEC-0014 REQ "Tag Normalization" — trim and normalize
+		displayName := strings.TrimSpace(tt.Name)
+		if displayName == "" {
+			continue
+		}
+		normalized := Normalize(displayName)
 		if normalized == "" {
 			continue
 		}
 
 		tagType := tag.TagType(tt.Type)
 
-		// Look up existing tag by (normalized_name, tag_type, user_id)
-		t, err := client.Tag.Query().
-			Where(
-				tag.NormalizedNameEQ(normalized),
-				tag.TagTypeEQ(tagType),
-				tag.HasUserWith(user.IDEQ(userID)),
-			).
-			Only(ctx)
-
-		if ent.IsNotFound(err) {
-			// Create new tag
-			t, err = client.Tag.Create().
-				SetName(tt.Name).
-				SetNormalizedName(normalized).
-				SetTagType(tagType).
-				SetUserID(userID).
-				Save(ctx)
-			if err != nil {
-				return fmt.Errorf("create tag %q (type %s): %w", tt.Name, tt.Type, err)
-			}
-		} else if err != nil {
-			return fmt.Errorf("query tag %q (type %s): %w", normalized, tt.Type, err)
+		// Governing: #349 — query-then-create race: use a retry loop for
+		// concurrent upserts of the same (name, type, user) tuple.
+		t, err := upsertTag(ctx, client, userID, displayName, normalized, tagType)
+		if err != nil {
+			return fmt.Errorf("upsert tag %q (type %s): %w", displayName, tt.Type, err)
 		}
 
 		// Add entity to the tag's edge (idempotent — Ent ignores duplicate edges)
@@ -81,6 +71,57 @@ func UpsertTagsForEntity(ctx context.Context, client *ent.Client, db *sql.DB, us
 		}
 	}
 	return nil
+}
+
+// upsertTag looks up an existing tag or creates one, with a retry on
+// unique-constraint conflicts from concurrent goroutines.
+// Governing: #349 — upsert race
+func upsertTag(ctx context.Context, client *ent.Client, userID int, displayName, normalized string, tagType tag.TagType) (*ent.Tag, error) {
+	// Look up existing tag by (normalized_name, tag_type, user_id)
+	t, err := client.Tag.Query().
+		Where(
+			tag.NormalizedNameEQ(normalized),
+			tag.TagTypeEQ(tagType),
+			tag.HasUserWith(user.IDEQ(userID)),
+		).
+		Only(ctx)
+
+	if err == nil {
+		return t, nil
+	}
+
+	if !ent.IsNotFound(err) {
+		return nil, fmt.Errorf("query tag %q: %w", normalized, err)
+	}
+
+	// Create new tag
+	t, err = client.Tag.Create().
+		SetName(displayName).
+		SetNormalizedName(normalized).
+		SetTagType(tagType).
+		SetUserID(userID).
+		Save(ctx)
+	if err == nil {
+		return t, nil
+	}
+
+	// Governing: #349 — concurrent goroutine may have created the same tag
+	// between our query and create. If the unique constraint fired, re-query.
+	if ent.IsConstraintError(err) {
+		t, queryErr := client.Tag.Query().
+			Where(
+				tag.NormalizedNameEQ(normalized),
+				tag.TagTypeEQ(tagType),
+				tag.HasUserWith(user.IDEQ(userID)),
+			).
+			Only(ctx)
+		if queryErr != nil {
+			return nil, fmt.Errorf("create tag %q (type %s) failed with constraint, then re-query failed: %w", displayName, tagType, queryErr)
+		}
+		return t, nil
+	}
+
+	return nil, fmt.Errorf("create tag %q (type %s): %w", displayName, tagType, err)
 }
 
 // upsertEntityTag inserts a row into entity_tags, ignoring conflicts for idempotency.
