@@ -44,3 +44,24 @@ These comments help future sessions (and `/sdd:check`) trace implementation back
 4. **Enrich**: `/sdd:organize` and `/sdd:enrich` — add projects and branch conventions
 5. **Build**: `/sdd:work` — pick up issues and implement in parallel using git worktrees
 6. **Validate**: `/sdd:check` and `/sdd:audit` to catch drift
+
+### SDD Configuration
+
+#### Tracker
+- **Type**: gitea
+- **Owner**: stump.wtf
+- **Repo**: spotter
+
+The canonical repository and the only issue tracker is https://gitea.stump.rocks/stump.wtf/spotter — the GitHub repos (`joestump/spotter`, `joestump-agent/spotter`) are retired lineages (see `docs/openspec/specs/stranded-work-reconciliation/`), and `github.com/stump-wtf/spotter` is a read-only push mirror. Never file issues or open PRs on GitHub.
+
+#### Branch Conventions
+- **Enabled**: true
+- **Prefix**: feature
+- **Epic Prefix**: epic
+- **Slug Max Length**: 50
+
+#### PR Conventions
+- **Enabled**: true
+- **Close Keyword**: Closes
+- **Ref Keyword**: Part of
+- **Include Spec Reference**: true
