@@ -46,13 +46,13 @@ jobs:
         uses: https://gitea.stump.rocks/stumpcloud/gitea-aibot-action@main
         env:
           AIBOT_HARNESS: ${{ vars.AIBOT_HARNESS || 'crush' }}
-          AIBOT_MODEL:   ${{ vars.AIBOT_MODEL   || 'zaicoding/glm-4.7' }}
-          AIBOT_ZAI_BASE_URL:  ${{ secrets.AIBOT_ZAI_BASE_URL }}
+          AIBOT_MODEL: ${{ vars.AIBOT_MODEL || 'zaicoding/glm-4.7' }}
+          AIBOT_ZAI_BASE_URL: ${{ secrets.AIBOT_ZAI_BASE_URL }}
           AIBOT_ZAI_API_TOKEN: ${{ secrets.AIBOT_ZAI_API_TOKEN }}
-          AIBOT_GITEA_HOST:  ${{ github.server_url }}
+          AIBOT_GITEA_HOST: ${{ github.server_url }}
           AIBOT_GITEA_TOKEN: ${{ github.token }}
-          AIBOT_BOT_LOGIN:   ${{ vars.AIBOT_BOT_LOGIN }}
+          AIBOT_BOT_LOGIN: ${{ vars.AIBOT_BOT_LOGIN }}
           # Auto-merge on a clean (APPROVED) review — inert until both are set:
-          AIBOT_AUTOMERGE:     ${{ vars.AIBOT_AUTOMERGE }}
-          AIBOT_MERGE_TOKEN:   ${{ secrets.AIBOT_MERGE_TOKEN }}
+          AIBOT_AUTOMERGE: ${{ vars.AIBOT_AUTOMERGE }}
+          AIBOT_MERGE_TOKEN: ${{ secrets.AIBOT_MERGE_TOKEN }}
           AIBOT_MERGE_STRATEGY: ${{ vars.AIBOT_MERGE_STRATEGY }}

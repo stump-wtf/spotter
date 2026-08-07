@@ -69,6 +69,9 @@ jobs:
   build-and-push:
     name: Build and Push
     needs: test
+    # ghcr.io publish is GitHub-only; Gitea Actions also reads this file, and the
+    # Gitea-side image build/deploy lives in .gitea/workflows/ instead (ADR-0045).
+    if: github.server_url == 'https://github.com'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -134,8 +137,9 @@ jobs:
     name: Deploy Docs
     needs: test
     runs-on: ubuntu-latest
-    # Only deploy on pushes to main (not PRs, not tags)
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Only deploy on pushes to main (not PRs, not tags), and only on GitHub —
+    # GitHub Pages deploys cannot run from Gitea Actions.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && github.server_url == 'https://github.com'
     permissions:
       pages: write
       id-token: write

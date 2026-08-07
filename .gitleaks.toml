@@ -1,0 +1,18 @@
+# Gitleaks config for spotter. Extends the default ruleset; the allowlist below
+# covers documented placeholders, test fixtures, and generated API docs that the
+# generic-api-key rule flags across the repo's history (80 findings, all dummy
+# values — e.g. "0123456789abcdef…", "replace-with-64-hex-chars", and the
+# compressed OpenAPI blobs docusaurus embeds in docs-site/docs-api/*.mdx).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholder credentials in tests, docs, and generated API pages"
+paths = [
+  '''internal/config/config_test\.go''',
+  '''docs-site/docs-api/.*\.mdx''',
+  '''website/docs/.*''',
+  '''docker-compose\..*\.yml''',
+  '''SECURITY\.md''',
+  '''internal/providers/navidrome/README\.md''',
+]
