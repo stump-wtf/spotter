@@ -162,7 +162,7 @@ When running in Docker, the default images directory (`./data/images`) resolves 
 | :--- | :--- | :--- |
 | `SPOTTER_PLAYLIST_SYNC_SYNC_INTERVAL` | How often to sync enabled playlists to Navidrome | `1h` |
 | `SPOTTER_PLAYLIST_SYNC_DELETE_ON_UNSYNC` | Delete Navidrome playlist when sync is disabled | `false` |
-| `SPOTTER_PLAYLIST_SYNC_MIN_MATCH_CONFIDENCE` | Minimum confidence for fuzzy track matching (0.0-1.0) | `0.8` |
+| `SPOTTER_PLAYLIST_SYNC_MIN_MATCH_CONFIDENCE` | Minimum confidence for fuzzy track matching (0.0-1.0) | `0.7` |
 | `SPOTTER_PLAYLIST_SYNC_INCLUDE_UNMATCHED_TRACKS` | Include unmatched tracks as placeholders | `false` |
 
 ## Example `.env` File

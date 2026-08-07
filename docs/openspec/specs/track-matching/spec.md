@@ -54,7 +54,7 @@ Out of scope: Playlist sync write-back to Navidrome (see playlist-sync-navidrome
 
 **REQ-TM-030** — If neither ISRC nor exact matching produces a result, the matcher MUST perform fuzzy matching by computing a similarity score against every track in the user's library.
 
-**REQ-TM-031** — The fuzzy match score MUST be a weighted average of title similarity (weight 0.6) and artist similarity (weight 0.4), where similarity is computed as `1.0 - (levenshtein_distance / max_string_length)`.
+**REQ-TM-031** — The fuzzy match score MUST be a weighted average of title similarity (weight 0.6) and artist similarity (weight 0.4), where similarity is computed as `1.0 - (levenshtein_distance / max_string_length)`. Both `levenshtein_distance` and `max_string_length` MUST be measured in Unicode code points (runes), not bytes; mixing units inflates similarity for multi-byte scripts (issue #330).
 
 **REQ-TM-032** — When both title similarity and artist similarity exceed 0.8, the matcher MUST apply a bonus of 0.1 to the combined score, capped at 1.0.
 
@@ -66,7 +66,7 @@ Out of scope: Playlist sync write-back to Navidrome (see playlist-sync-navidrome
 
 **REQ-TM-040** — Normalization MUST convert the input string to lowercase.
 
-**REQ-TM-041** — Normalization MUST strip common version suffixes including but not limited to: `(remastered)`, `(deluxe)`, `(live)`, `(acoustic)`, `(remix)`, `(radio edit)`, `(bonus track)`, `(explicit)`, `(clean)`, and their bracket equivalents, as well as dash-separated variants (e.g., `- remastered`).
+**REQ-TM-041** — Normalization MUST strip common version suffixes including but not limited to: `(remastered)`, `(deluxe)`, `(live)`, `(acoustic)`, `(remix)`, `(radio edit)`, `(bonus track)`, `(explicit)`, `(clean)`, and their bracket equivalents, as well as dash-separated variants (e.g., `- remastered`) and year-qualified remaster forms (e.g., `- remastered 2011`, `- 2011 remaster`, `(remastered 2011)`).
 
 **REQ-TM-042** — Normalization MUST remove punctuation and collapse consecutive whitespace into a single space. Only Unicode letters and numbers MUST be preserved.
 

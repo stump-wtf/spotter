@@ -43,13 +43,13 @@ Chosen option: **Three-tier: ISRC → exact normalized → fuzzy with confidence
 
 ### Confirmation
 
-Compliance is confirmed by `internal/services/track_matcher.go` containing `TrackMatcher` with the three strategies applied in order (ISRC → exact → fuzzy) within `MatchTracks()`. The `MinMatchConfidence` field gates fuzzy matches. `MatchResult.MatchMethod` values of `"isrc"`, `"exact"`, `"fuzzy"`, and `"none"` must be used. No ML libraries, embedding APIs, or external matching services should be imported.
+Compliance is confirmed by `internal/services/track_matcher.go` containing `TrackMatcher` with `LoadLibraryIndex()` building the `isrcMap`/`exactMap` lookup indexes and normalized fuzzy candidates over the user's library, and `MatchTracksWithIndex()` (wrapped by the convenience `MatchTracks()`) applying the three strategies in order (ISRC → exact → fuzzy). The `MinMatchConfidence` field gates fuzzy matches. `MatchResult.MatchMethod` values of `"isrc"`, `"exact"`, `"fuzzy"`, and `"none"` must be used. No ML libraries, embedding APIs, or external matching services should be imported.
 
 ## Pros and Cons of the Options
 
 ### Three-Tier: ISRC → Exact Normalized → Fuzzy with Confidence Threshold
 
-`TrackMatcher` struct with `MinMatchConfidence float64`. `MatchTracks()` builds `isrcMap` and `exactMap` lookup indexes over the user's library, then iterates source tracks through three strategies in order. `findBestFuzzyMatch()` computes Levenshtein-based similarity with weighted scoring. `normalizeForMatch()` strips 30+ version suffixes and removes punctuation.
+`TrackMatcher` struct with `MinMatchConfidence float64`. `LoadLibraryIndex()` builds `isrcMap` and `exactMap` lookup indexes over the user's library once; `MatchTracksWithIndex()` then iterates source tracks through three strategies in order. `findBestFuzzyMatch()` computes Levenshtein-based similarity with weighted scoring. `normalizeForMatch()` strips 30+ version suffixes and removes punctuation.
 
 * Good, because three tiers provide graceful degradation — if ISRC data is missing, the matcher falls through to string-based strategies automatically
 * Good, because lookup maps (`isrcMap`, `exactMap`) provide O(1) matching for tiers 1 and 2 — only tier 3 is O(n)

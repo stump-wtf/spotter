@@ -190,7 +190,7 @@
 - **SRV-TM-003**: The system MUST normalize artist names for comparison
 - **SRV-TM-004**: The system MUST normalize album titles for comparison
 - **SRV-TM-005**: The system MUST calculate match confidence scores (0-100)
-- **SRV-TM-006**: The system MUST enforce minimum confidence threshold (default 80)
+- **SRV-TM-006**: The system MUST enforce minimum confidence threshold (default 70)
 - **SRV-TM-007**: The system MUST match on artist + title as primary criteria
 - **SRV-TM-008**: The system SHOULD boost confidence when album names also match
 - **SRV-TM-009**: The system SHOULD use Levenshtein distance for fuzzy string matching

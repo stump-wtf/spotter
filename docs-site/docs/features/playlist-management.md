@@ -35,7 +35,7 @@ Tracks are matched using these strategies (in order of priority):
 
 | Variable | Description | Default |
 | :--- | :--- | :--- |
-| `SPOTTER_PLAYLIST_SYNC_MIN_MATCH_CONFIDENCE` | Minimum confidence for fuzzy matching (0.0-1.0) | `0.8` |
+| `SPOTTER_PLAYLIST_SYNC_MIN_MATCH_CONFIDENCE` | Minimum confidence for fuzzy matching (0.0-1.0) | `0.7` |
 | `SPOTTER_PLAYLIST_SYNC_INCLUDE_UNMATCHED_TRACKS` | Include unmatched tracks as placeholders | `false` |
 
 ## Sync Status

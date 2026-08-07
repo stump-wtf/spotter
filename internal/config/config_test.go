@@ -30,6 +30,9 @@ func TestLoadDefaults(t *testing.T) {
 	assert.Equal(t, "dark", cfg.Theme.Default)
 	assert.Equal(t, []string{"light", "dark", "cupcake"}, cfg.AvailableThemes())
 	assert.Equal(t, "text", cfg.Log.Format)
+	// Governing: ADR-0014, SPEC playlist-sync-navidrome REQ-PLSYNC-003 (default 0.7)
+	assert.Equal(t, 0.7, cfg.PlaylistSync.MinMatchConfidence)
+	assert.Equal(t, 0.7, cfg.Vibes.MinMatchConfidence)
 }
 
 func TestLogFormatConfig(t *testing.T) {

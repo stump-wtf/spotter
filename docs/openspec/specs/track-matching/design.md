@@ -198,16 +198,17 @@ for matching without additional queries.
 
 ```text
 Input: "Don't Stop Me Now - Remastered 2011"
-  1. ToLower:     "don't stop me now - remastered 2011"
-  2. TrimSuffix:  "don't stop me now" (strips " - remastered")
-  3. Strip punct: "dont stop me now" (removes apostrophe)
-  4. Collapse ws: "dont stop me now"
+  1. NFC + ToLower: "don't stop me now - remastered 2011"
+  2. Year regex:    "don't stop me now" (strips " - remastered 2011")
+  3. Strip punct:   "dont stop me now" (removes apostrophe)
+  4. Collapse ws:   "dont stop me now"
 ```
 
-Note: The suffix stripping uses `strings.TrimSuffix` which only matches at the end of the
-string. Year-qualified suffixes like "- Remastered 2011" are not in the suffix list — they
-will be partially stripped ("- remastered" is removed but "2011" remains). Fuzzy matching
-compensates for this.
+Note: Plain version suffixes are stripped with a `strings.TrimSuffix` list, which only
+matches exact suffixes at the end of the string. Year-qualified remaster forms
+("- Remastered 2011", "- 2011 Remaster", "(Remastered 2011)") are handled by a dedicated
+regular expression applied before the list, since `TrimSuffix` cannot match them. Input is
+canonicalized to Unicode NFC first so NFC- and NFD-encoded metadata normalize identically.
 
 ### Levenshtein Distance
 

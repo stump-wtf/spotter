@@ -13,6 +13,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"spotter/ent"
 	"spotter/ent/artist"
@@ -810,10 +812,13 @@ func normalizeForMatch(s string) string {
 		s = strings.TrimSuffix(s, suffix)
 	}
 
-	// Remove non-alphanumeric characters
+	// Remove punctuation, keeping Unicode letters and numbers. The previous
+	// ASCII-only filter ([a-z0-9 ]) collapsed every CJK/Cyrillic title to "",
+	// so any two non-Latin titles matched each other at similarity 1.0 via the
+	// a == b fast path in similarity().
 	var result strings.Builder
 	for _, r := range s {
-		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == ' ' {
+		if unicode.IsLetter(r) || unicode.IsNumber(r) || r == ' ' {
 			result.WriteRune(r)
 		}
 	}
@@ -830,11 +835,12 @@ func similarity(a, b string) float64 {
 		return 0.0
 	}
 
+	// Both the edit distance and the maximum length are measured in RUNES.
+	// levenshtein() returns a rune-based distance, so dividing by a byte-based
+	// max length inflated similarity 2-3x for non-ASCII titles (the same bug
+	// fixed in internal/services/track_matcher.go for issue #330).
 	distance := levenshtein(a, b)
-	maxLen := len(a)
-	if len(b) > maxLen {
-		maxLen = len(b)
-	}
+	maxLen := max(utf8.RuneCountInString(a), utf8.RuneCountInString(b))
 
 	return 1.0 - float64(distance)/float64(maxLen)
 }

@@ -480,6 +480,31 @@ func TestMixtapeGenerator_FindBestFuzzyMatch(t *testing.T) {
 	})
 }
 
+func TestMixtapeGenerator_Regression_CJKDissimilarTitlesDoNotMatch(t *testing.T) {
+	// Issue #330 (vibes copy): the old ASCII-only normalizeForMatch collapsed
+	// every non-Latin title to "", so any two CJK titles matched each other at
+	// similarity 1.0 via the a == b fast path, and the old byte-based maxLen
+	// inflated non-ASCII scores. Both are fixed; this pins the behavior.
+	cfg := &config.Config{}
+	g := NewMixtapeGenerator(nil, cfg, nil, nil)
+
+	candidates := []AvailableTrack{
+		{ID: 1, Name: "夜に駆ける", Artist: "YOASOBI"},
+	}
+
+	// Dissimilar CJK title by the same artist must not clear the 0.7 default.
+	match, confidence := g.findBestFuzzyMatch("群青", "YOASOBI", candidates)
+	if match != nil && confidence >= 0.7 {
+		t.Fatalf("dissimilar CJK title must not fuzzy-match, got %+v at confidence %f", match, confidence)
+	}
+
+	// The identical CJK title must still match at full confidence.
+	match, confidence = g.findBestFuzzyMatch("夜に駆ける", "YOASOBI", candidates)
+	require.NotNil(t, match)
+	assert.Equal(t, 1, match.ID)
+	assert.Equal(t, 1.0, confidence)
+}
+
 func TestMixtapeGenerator_MatchTracksToLibrary(t *testing.T) {
 	cfg := &config.Config{}
 	cfg.Vibes.MinMatchConfidence = 0.7
