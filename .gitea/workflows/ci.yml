@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ gitea.workflow }}-${{ gitea.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache: true
+
+      - name: Install CI dependencies
+        run: make ci-deps
+
+      - name: Run tests
+        run: make test
+
+  # Lint is disabled until the runner toolchain supports Ent codegen
+  # (needs CGO + database drivers for `go generate`). The lint targets
+  # require generated code that the current runner can't produce.
+  # Re-enable by uncommenting the lint job below once the runner is fixed.
+  #
+  # lint:
+  #   name: Lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: "1.24"
+  #         cache: true
+  #     - name: Install CI dependencies
+  #       run: make ci-deps
+  #     - name: Generate code (Ent + Templ)
+  #       run: make generate
+  #     - name: Lint Go
+  #       run: make lint-go
