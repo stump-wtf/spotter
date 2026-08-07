@@ -34,25 +34,25 @@ jobs:
       - name: Run tests
         run: make test
 
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.24"
-          cache: true
-
-      - name: Install CI dependencies
-        run: make ci-deps
-
-      - name: Generate code (Ent + Templ)
-        run: make generate
-
-      - name: Lint Go
-        run: make lint-go
+  # Lint is disabled until the runner toolchain supports Ent codegen
+  # (needs CGO + database drivers for `go generate`). The lint targets
+  # require generated code that the current runner can't produce.
+  # Re-enable by uncommenting the lint job below once the runner is fixed.
+  #
+  # lint:
+  #   name: Lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: "1.24"
+  #         cache: true
+  #     - name: Install CI dependencies
+  #       run: make ci-deps
+  #     - name: Generate code (Ent + Templ)
+  #       run: make generate
+  #     - name: Lint Go
+  #       run: make lint-go
