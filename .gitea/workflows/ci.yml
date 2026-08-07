@@ -50,6 +50,9 @@ jobs:
       - name: Install CI dependencies
         run: make ci-deps
 
+      - name: Generate code (Ent + Templ)
+        run: make generate
+
       - name: Lint Go
         run: make lint-go
 
