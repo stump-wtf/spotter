@@ -65,6 +65,14 @@ func NewMetadataService(client *ent.Client, db *sql.DB, cfg *config.Config, logg
 	}
 }
 
+// UpsertTypedTags persists typed tags for an entity, linking them to the
+// unified tag taxonomy. This is the public entry point for regenerate handlers
+// and other callers that need to persist tags outside the enrichment pipeline.
+// Governing: #349 — regenerate-AI bypass, SPEC-0014 REQ "Enricher Integration"
+func (s *MetadataService) UpsertTypedTags(ctx context.Context, userID int, entityType string, entityID int, typed []tags.TypedTag) error {
+	return tags.UpsertTagsForEntity(ctx, s.client, s.db, userID, entityType, entityID, typed)
+}
+
 // byLastEnrichedAtNullsFirst orders enrichment batches so never-enriched rows
 // (NULL last_enriched_at) come first, then the least-recently-enriched, with ID
 // as a deterministic tie-breaker. Because each processed row gets its
