@@ -64,5 +64,21 @@ jobs:
       - name: Install yamllint
         run: pip install yamllint
 
-      - name: Run linters
-        run: make lint
+      - name: Lint Go
+        run: make lint-go
+
+      - name: Lint Templ
+        run: make lint-templ
+
+      - name: Lint YAML
+        run: make lint-yaml
+
+      - name: Lint Markdown
+        run: make lint-md
+
+      - name: Lint Docker
+        run: make lint-docker
+        continue-on-error: true
+
+      - name: Lint docs (Docusaurus build)
+        run: make lint-docs
