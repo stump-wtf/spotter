@@ -36,8 +36,9 @@ FROM debian:bookworm-slim
 
 WORKDIR /app
 
-# Install certificates
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+# Install certificates, and refresh perl-base (Essential, so already present) to the
+# current bookworm-security release — the Trivy scan gates on fixed CRITICAL/HIGH CVEs.
+RUN apt-get update && apt-get install -y ca-certificates perl-base && rm -rf /var/lib/apt/lists/*
 
 # Copy artifacts
 COPY --from=builder /app/spotter-server .
