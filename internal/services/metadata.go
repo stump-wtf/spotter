@@ -37,6 +37,11 @@ import (
 	"spotter/internal/tags"
 )
 
+// aiEnrichmentInterval is how long an entity's AI enrichment stays fresh: the
+// LLM-backed enricher is only consulted again once this much time has passed
+// since last_ai_enriched_at. Governing: issue #389 (AI enrichment spend loop)
+const aiEnrichmentInterval = 7 * 24 * time.Hour
+
 // MetadataService handles catalog building and metadata enrichment.
 // Governing: SPEC metadata-enrichment-pipeline REQ-ENRICH-043 (MetadataService coordinates all enrichers for a user),
 // ADR-0015 (type-keyed enricher registry with factory pattern)
@@ -594,7 +599,7 @@ func (s *MetadataService) EnrichArtists(ctx context.Context, u *ent.User) (int, 
 	// Get artists that need enrichment (not enriched in the last 24 hours)
 	// OR that need AI enrichment (never AI enriched or AI enriched more than 7 days ago)
 	cutoff := time.Now().Add(-24 * time.Hour)
-	aiCutoff := time.Now().Add(-7 * 24 * time.Hour)
+	aiCutoff := time.Now().Add(-aiEnrichmentInterval)
 	artists, err := s.client.Artist.Query().
 		Where(
 			artist.HasUserWith(user.ID(u.ID)),
@@ -673,14 +678,25 @@ func (s *MetadataService) enrichArtist(ctx context.Context, u *ent.User, art *en
 	var allGenres []string
 	var allTypedTags []tags.TypedTag
 	enrichersUsed := []string{}
+	// Governing: issue #389 (AI enrichment spend loop) - the LLM enricher is
+	// only consulted when this artist's AI enrichment is stale.
+	aiCutoff := time.Now().Add(-aiEnrichmentInterval)
+	needsAI := art.LastAiEnrichedAt == nil || art.LastAiEnrichedAt.Before(aiCutoff)
+	aiConsulted := false
 
 	for _, e := range enricherList {
 		artistEnricher, ok := e.(enrichers.ArtistEnricher)
 		if !ok {
 			continue
 		}
+		if e.Type() == enrichers.TypeOpenAI && !needsAI {
+			continue
+		}
 
 		data, err := artistEnricher.EnrichArtist(ctx, art)
+		if e.Type() == enrichers.TypeOpenAI && (err != nil || data != nil) {
+			aiConsulted = true
+		}
 		if err != nil {
 			s.logger.Warn("enricher failed for artist",
 				"enricher", e.Name(),
@@ -744,7 +760,6 @@ func (s *MetadataService) enrichArtist(ctx context.Context, u *ent.User, art *en
 		}
 		if len(data.AITags) > 0 {
 			update = update.SetAiTags(data.AITags)
-			update = update.SetLastAiEnrichedAt(time.Now())
 		}
 
 		// Get images
@@ -767,6 +782,15 @@ func (s *MetadataService) enrichArtist(ctx context.Context, u *ent.User, art *en
 	}
 	if len(allGenres) > 0 {
 		update = update.SetGenres(uniqueStrings(allGenres))
+	}
+
+	// Record the AI attempt whether or not it produced anything usable: an
+	// empty result or a failed call still has to move the timestamp, otherwise
+	// the entity stays eligible and the LLM is re-called on every pass. A nil
+	// result with no error is the enricher's own recency skip, which must not
+	// push the timestamp forward. Governing: issue #389 (AI enrichment spend loop)
+	if aiConsulted {
+		update = update.SetLastAiEnrichedAt(time.Now())
 	}
 
 	// Update last enriched timestamp
@@ -886,7 +910,7 @@ func (s *MetadataService) EnrichAlbums(ctx context.Context, u *ent.User) (int, e
 	// Get albums that need enrichment
 	// OR that need AI enrichment (never AI enriched or AI enriched more than 7 days ago)
 	cutoff := time.Now().Add(-24 * time.Hour)
-	aiCutoff := time.Now().Add(-7 * 24 * time.Hour)
+	aiCutoff := time.Now().Add(-aiEnrichmentInterval)
 	albums, err := s.client.Album.Query().
 		Where(
 			album.HasUserWith(user.ID(u.ID)),
@@ -1077,14 +1101,23 @@ func (s *MetadataService) enrichAlbum(ctx context.Context, u *ent.User, alb *ent
 	var allTags []string
 	var allTypedTags []tags.TypedTag
 	enrichersUsed := []string{}
+	aiCutoff := time.Now().Add(-aiEnrichmentInterval)
+	needsAI := alb.LastAiEnrichedAt == nil || alb.LastAiEnrichedAt.Before(aiCutoff)
+	aiConsulted := false
 
 	for _, e := range enricherList {
 		albumEnricher, ok := e.(enrichers.AlbumEnricher)
 		if !ok {
 			continue
 		}
+		if e.Type() == enrichers.TypeOpenAI && !needsAI {
+			continue
+		}
 
 		data, err := albumEnricher.EnrichAlbum(ctx, alb)
+		if e.Type() == enrichers.TypeOpenAI && (err != nil || data != nil) {
+			aiConsulted = true
+		}
 		if err != nil {
 			s.logger.Warn("enricher failed for album",
 				"enricher", e.Name(),
@@ -1167,10 +1200,6 @@ func (s *MetadataService) enrichAlbum(ctx context.Context, u *ent.User, alb *ent
 			}
 			update = update.SetRecommendations(recs)
 		}
-		// If any AI fields were set, update the timestamp
-		if data.AISummary != "" || len(data.AITags) > 0 || len(data.DominantColors) > 0 || data.CoverArtCommentary != "" || len(data.Recommendations) > 0 {
-			update = update.SetLastAiEnrichedAt(time.Now())
-		}
 
 		// Get images
 		images, err := albumEnricher.GetAlbumImages(ctx, alb)
@@ -1188,6 +1217,13 @@ func (s *MetadataService) enrichAlbum(ctx context.Context, u *ent.User, alb *ent
 
 	if len(allTags) > 0 {
 		update = update.SetTags(uniqueStrings(allTags))
+	}
+
+	// An AI call that failed or returned nothing still counts as an attempt:
+	// without the timestamp the album stays eligible and the LLM is re-called
+	// every pass. Governing: issue #389 (AI enrichment spend loop)
+	if aiConsulted {
+		update = update.SetLastAiEnrichedAt(time.Now())
 	}
 
 	update = update.SetLastEnrichedAt(time.Now())
@@ -1309,7 +1345,7 @@ func (s *MetadataService) EnrichTracks(ctx context.Context, u *ent.User) (int, e
 	// Get tracks that need enrichment
 	// OR that need AI enrichment (never AI enriched or AI enriched more than 7 days ago)
 	cutoff := time.Now().Add(-24 * time.Hour)
-	aiCutoff := time.Now().Add(-7 * 24 * time.Hour)
+	aiCutoff := time.Now().Add(-aiEnrichmentInterval)
 	// Get tracks via their artists (which belong to users)
 	tracks, err := s.client.Track.Query().
 		Where(
@@ -1384,14 +1420,26 @@ func (s *MetadataService) enrichTrack(ctx context.Context, u *ent.User, t *ent.T
 	var allGenres []string
 	var allTypedTags []tags.TypedTag
 	enrichersUsed := []string{}
+	// Governing: issue #389 (AI track enricher spend loop) - the track query
+	// also selects rows for Lidarr and regular-enrichment reasons, so the AI
+	// enricher has to be gated here and not only by the query.
+	aiCutoff := time.Now().Add(-aiEnrichmentInterval)
+	needsAI := t.LastAiEnrichedAt == nil || t.LastAiEnrichedAt.Before(aiCutoff)
+	aiConsulted := false
 
 	for _, e := range enricherList {
 		trackEnricher, ok := e.(enrichers.TrackEnricher)
 		if !ok {
 			continue
 		}
+		if e.Type() == enrichers.TypeOpenAI && !needsAI {
+			continue
+		}
 
 		data, err := trackEnricher.EnrichTrack(ctx, t)
+		if e.Type() == enrichers.TypeOpenAI && (err != nil || data != nil) {
+			aiConsulted = true
+		}
 		if err != nil {
 			s.logger.Warn("enricher failed for track",
 				"enricher", e.Name(),
@@ -1477,7 +1525,6 @@ func (s *MetadataService) enrichTrack(ctx context.Context, u *ent.User, t *ent.T
 		}
 		if len(data.AITags) > 0 {
 			update = update.SetAiTags(data.AITags)
-			update = update.SetLastAiEnrichedAt(time.Now())
 		}
 	}
 
@@ -1486,6 +1533,13 @@ func (s *MetadataService) enrichTrack(ctx context.Context, u *ent.User, t *ent.T
 	}
 	if len(allGenres) > 0 {
 		update = update.SetGenres(uniqueStrings(allGenres))
+	}
+
+	// An AI call that failed or returned zero tags still counts as an attempt:
+	// without the timestamp the track stays eligible forever and the LLM is
+	// re-called on every 5-minute sync. Governing: issue #389
+	if aiConsulted {
+		update = update.SetLastAiEnrichedAt(time.Now())
 	}
 
 	update = update.SetLastEnrichedAt(time.Now())
