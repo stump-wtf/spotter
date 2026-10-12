@@ -1,4 +1,4 @@
-FROM golang:1.27 AS builder
+FROM golang:1.26.9 AS builder
 
 # Build-time version string (git tag > branch > SHA), passed in by CI
 ARG VERSION=dev
