@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"path/filepath"
 	"sync"
 	"testing"
 
@@ -20,7 +21,7 @@ import (
 
 func setupUpsertTestDB(t *testing.T) (*ent.Client, *sql.DB) {
 	t.Helper()
-	dsn := "file:" + t.Name() + "?mode=memory&cache=shared&_fk=1&_busy_timeout=10000"
+	dsn := fmt.Sprintf("file:%s?_fk=1&_busy_timeout=10000&_journal_mode=WAL", filepath.Join(t.TempDir(), "test.db"))
 	client := enttest.Open(t, "sqlite3", dsn)
 
 	db, err := sql.Open("sqlite3", dsn)
