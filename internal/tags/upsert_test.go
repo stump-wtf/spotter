@@ -20,7 +20,7 @@ import (
 
 func setupUpsertTestDB(t *testing.T) (*ent.Client, *sql.DB) {
 	t.Helper()
-	dsn := "file:" + t.Name() + "?mode=memory&cache=shared&_fk=1"
+	dsn := "file:" + t.Name() + "?mode=memory&cache=shared&_fk=1&_busy_timeout=10000"
 	client := enttest.Open(t, "sqlite3", dsn)
 
 	db, err := sql.Open("sqlite3", dsn)
