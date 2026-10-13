@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	entgo.io/ent v0.14.5
 	github.com/a-h/templ v0.3.977
-	github.com/go-chi/chi/v5 v5.2.3
+	github.com/go-chi/chi/v5 v5.4.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/lib/pq v1.11.2
