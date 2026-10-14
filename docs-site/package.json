@@ -37,7 +37,7 @@
     "@docusaurus/types": "3.10.2",
     "chokidar-cli": "^3.0.0",
     "concurrently": "^10.0.0",
-    "typescript": "~5.9.0"
+    "typescript": "~7.0.0"
   },
   "browserslist": {
     "production": [
