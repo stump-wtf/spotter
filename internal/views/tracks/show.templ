@@ -364,7 +364,7 @@ templ ProviderHistoryChart(trackID int, data components.StackedChartData, curren
 					Listens Over Time
 				</h3>
 				<select
-					class="select select-bordered select-sm w-40"
+					class="select select-sm w-40"
 					hx-get={ fmt.Sprintf("/library/track/%d/chart", trackID) }
 					hx-target="#provider-history-chart"
 					hx-swap="innerHTML"

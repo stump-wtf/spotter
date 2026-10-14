@@ -249,13 +249,13 @@ templ Tasks(user *ent.User, tasks []types.Task, events []*ent.SyncEvent, selecte
 							</h3>
 							<!-- Filters -->
 							<form method="GET" action="/preferences/tasks" class="flex flex-wrap items-center gap-2">
-								<select name="provider" class="select select-bordered select-sm" onchange="this.form.submit()">
+								<select name="provider" class="select select-sm" onchange="this.form.submit()">
 									<option value="">All Sources</option>
 									for _, p := range providers {
 										<option value={ p } selected?={ selectedProvider == p }>{ formatProvider(p) }</option>
 									}
 								</select>
-								<select name="event_type" class="select select-bordered select-sm" onchange="this.form.submit()">
+								<select name="event_type" class="select select-sm" onchange="this.form.submit()">
 									<option value="">All Events</option>
 									for _, et := range eventTypes {
 										<option value={ string(et) } selected?={ selectedEventType == string(et) }>{ formatEventType(et) }</option>

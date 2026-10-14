@@ -32,9 +32,9 @@ templ Account(user *ent.User, cfg *config.Config, smtpConfigured bool) {
 							hx-swap="beforeend"
 							class="space-y-4 mt-4"
 						>
-							<div class="form-control">
+							<div class="fieldset">
 								<label class="label">
-									<span class="label-text font-medium">Email</span>
+									<span class="fieldset-label font-medium">Email</span>
 								</label>
 								<input
 									type="email"
@@ -42,7 +42,7 @@ templ Account(user *ent.User, cfg *config.Config, smtpConfigured bool) {
 									value={ user.Email }
 									maxlength="320"
 									placeholder="you@example.com"
-									class="input input-bordered w-full max-w-md"
+									class="input w-full max-w-md"
 								/>
 							</div>
 							<div class="card-actions">

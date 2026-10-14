@@ -508,15 +508,15 @@ script showDeleteMixtapeModal(id int, name string) {
 
 templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 	<!-- Name -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">Name <span class="text-error">*</span></span>
+			<span class="fieldset-label font-medium">Name <span class="text-error">*</span></span>
 		</label>
 		<input
 			type="text"
 			name="name"
 			id={ mixtapeFieldID("name", m) }
-			class="input input-bordered w-full"
+			class="input w-full"
 			placeholder="e.g., Late Night Coding, Sunday Morning Chill"
 			required
 			if m != nil {
@@ -525,14 +525,14 @@ templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 		/>
 	</div>
 	<!-- Description -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">Description</span>
+			<span class="fieldset-label font-medium">Description</span>
 		</label>
 		<textarea
 			name="description"
 			id={ mixtapeFieldID("description", m) }
-			class="textarea textarea-bordered h-20 w-full"
+			class="textarea h-20 w-full"
 			placeholder="What's this mixtape for?"
 		>
 			if m != nil {
@@ -541,14 +541,14 @@ templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 		</textarea>
 	</div>
 	<!-- DJ Selection -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">DJ <span class="text-error">*</span></span>
+			<span class="fieldset-label font-medium">DJ <span class="text-error">*</span></span>
 		</label>
 		<select
 			name="dj_id"
 			id={ mixtapeFieldID("dj", m) }
-			class="select select-bordered w-full"
+			class="select w-full"
 			required
 		>
 			<option value="" disabled selected?={ m == nil }>Select a DJ</option>
@@ -562,19 +562,19 @@ templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 			}
 		</select>
 		<label class="label">
-			<span class="label-text-alt text-base-content/60">The DJ personality that will curate this mixtape</span>
+			<span class="fieldset-label text-base-content/60">The DJ personality that will curate this mixtape</span>
 		</label>
 	</div>
 	<!-- Max Tracks -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">Maximum Tracks</span>
+			<span class="fieldset-label font-medium">Maximum Tracks</span>
 		</label>
 		<input
 			type="number"
 			name="max_tracks"
 			id={ mixtapeFieldID("max_tracks", m) }
-			class="input input-bordered w-full"
+			class="input w-full"
 			min="1"
 			max="100"
 			if m != nil {
@@ -584,18 +584,18 @@ templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 			}
 		/>
 		<label class="label">
-			<span class="label-text-alt text-base-content/60">Maximum number of tracks for the AI to select (1-100)</span>
+			<span class="fieldset-label text-base-content/60">Maximum number of tracks for the AI to select (1-100)</span>
 		</label>
 	</div>
 	<!-- Schedule -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">Update Schedule</span>
+			<span class="fieldset-label font-medium">Update Schedule</span>
 		</label>
 		<select
 			name="schedule"
 			id={ mixtapeFieldID("schedule", m) }
-			class="select select-bordered w-full"
+			class="select w-full"
 		>
 			<option value="none" selected?={ m == nil || m.Schedule == "none" }>Manual (no automatic updates)</option>
 			<option value="daily" selected?={ m != nil && m.Schedule == "daily" }>Daily</option>
@@ -603,11 +603,11 @@ templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 			<option value="monthly" selected?={ m != nil && m.Schedule == "monthly" }>Monthly</option>
 		</select>
 		<label class="label">
-			<span class="label-text-alt text-base-content/60">How often should the AI regenerate tracks?</span>
+			<span class="fieldset-label text-base-content/60">How often should the AI regenerate tracks?</span>
 		</label>
 	</div>
 	<!-- Sync to Navidrome -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label cursor-pointer justify-start gap-4">
 			<input
 				type="checkbox"
@@ -617,7 +617,7 @@ templ MixtapeFormFields(m *ent.Mixtape, djs []*ent.DJ) {
 				checked?={ m != nil && m.SyncToNavidrome }
 			/>
 			<div>
-				<span class="label-text font-medium">Sync to Navidrome</span>
+				<span class="fieldset-label font-medium">Sync to Navidrome</span>
 				<p class="text-xs text-base-content/60">Automatically create and update a playlist in Navidrome</p>
 			</div>
 		</label>
