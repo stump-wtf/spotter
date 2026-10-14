@@ -10,7 +10,7 @@
     "@iconify-json/heroicons": "*",
     "@iconify-json/simple-icons": "^1.2.64",
     "@iconify/tailwind": "*",
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.0",
     "daisyui": "^4.12.24",
     "markdownlint-cli": "^0.43.0",
     "nodemon": "^3.1.11",
