@@ -7,7 +7,7 @@ require (
 	github.com/a-h/templ v0.3.1070
 	github.com/go-chi/chi/v5 v5.4.0
 	github.com/go-sql-driver/mysql v1.10.1
-	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/lib/pq v1.12.3
 	github.com/mattn/go-sqlite3 v1.14.28
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
