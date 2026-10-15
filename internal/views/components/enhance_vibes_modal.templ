@@ -45,9 +45,9 @@ templ EnhanceVibesModalContent(params EnhanceVibesModalParams) {
 			_="on htmx:afterRequest if this.closest('dialog') this.closest('dialog').close()"
 		>
 			<!-- DJ Selection -->
-			<div class="form-control mb-4">
+			<div class="fieldset mb-4">
 				<label class="label">
-					<span class="label-text">
+					<span class="fieldset-label">
 						DJ Persona
 						<span class="text-error">*</span>
 					</span>
@@ -58,38 +58,38 @@ templ EnhanceVibesModalContent(params EnhanceVibesModalParams) {
 						<span>No DJs available. <a href="/vibes/djs" class="link link-primary">Create a DJ first</a>.</span>
 					</div>
 				} else {
-					<select name="dj_id" class="select select-bordered w-full" required>
+					<select name="dj_id" class="select w-full" required>
 						<option value="" disabled selected>Select a DJ to guide the enhancement</option>
 						for _, d := range params.DJs {
 							<option value={ fmt.Sprintf("%d", d.ID) }>{ d.Name }</option>
 						}
 					</select>
 					<label class="label">
-						<span class="label-text-alt">The DJ's personality will influence track ordering and suggestions</span>
+						<span class="fieldset-label">The DJ's personality will influence track ordering and suggestions</span>
 					</label>
 				}
 			</div>
 			<!-- Max New Tracks -->
-			<div class="form-control mb-4">
+			<div class="fieldset mb-4">
 				<label class="label">
-					<span class="label-text">New Tracks to Add</span>
+					<span class="fieldset-label">New Tracks to Add</span>
 				</label>
 				<input
 					type="number"
 					name="max_new_tracks"
-					class="input input-bordered"
+					class="input"
 					min="0"
 					max="20"
 					value="5"
 				/>
 				<label class="label">
-					<span class="label-text-alt">How many new tracks should the DJ suggest? (0-20)</span>
+					<span class="fieldset-label">How many new tracks should the DJ suggest? (0-20)</span>
 				</label>
 			</div>
 			<!-- Enhancement Mode Selection -->
-			<div class="form-control mb-6">
+			<div class="fieldset mb-6">
 				<label class="label">
-					<span class="label-text font-medium">Enhancement Mode</span>
+					<span class="fieldset-label font-medium">Enhancement Mode</span>
 				</label>
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<!-- One-time Enhancement -->

@@ -44,42 +44,42 @@ templ CreateMixtapeModalContent(params CreateMixtapeParams) {
 			hx-swap="none"
 			_="on htmx:afterRequest if this.closest('dialog') this.closest('dialog').close()"
 		>
-			<div class="form-control mb-4">
+			<div class="fieldset mb-4">
 				<label class="label">
-					<span class="label-text">Mixtape Name</span>
+					<span class="fieldset-label">Mixtape Name</span>
 				</label>
 				<input
 					type="text"
 					name="name"
-					class="input input-bordered"
+					class="input"
 					placeholder={ params.SeedName + " Mix" }
 				/>
 			</div>
-			<div class="form-control mb-4">
+			<div class="fieldset mb-4">
 				<label class="label">
-					<span class="label-text">
+					<span class="fieldset-label">
 						DJ Persona
 						<span class="text-error">*</span>
 					</span>
 				</label>
-				<select name="dj_id" class="select select-bordered w-full" required>
+				<select name="dj_id" class="select w-full" required>
 					<option value="" disabled selected>Select a DJ</option>
 					for _, d := range params.DJs {
 						<option value={ fmt.Sprintf("%d", d.ID) }>{ d.Name }</option>
 					}
 				</select>
 				<label class="label">
-					<span class="label-text-alt">The DJ's personality will influence track selection</span>
+					<span class="fieldset-label">The DJ's personality will influence track selection</span>
 				</label>
 			</div>
-			<div class="form-control mb-4">
+			<div class="fieldset mb-4">
 				<label class="label">
-					<span class="label-text">Number of Tracks</span>
+					<span class="fieldset-label">Number of Tracks</span>
 				</label>
 				<input
 					type="number"
 					name="max_tracks"
-					class="input input-bordered"
+					class="input"
 					min="5"
 					max="100"
 					value="25"

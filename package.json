@@ -7,13 +7,11 @@
     "watch:css": "tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch"
   },
   "devDependencies": {
-    "@iconify-json/heroicons": "*",
-    "@iconify-json/simple-icons": "^1.2.64",
-    "@iconify/tailwind": "*",
+    "@tailwindcss/cli": "^4.3.3",
     "concurrently": "^10.0.0",
-    "daisyui": "^4.12.24",
+    "daisyui": "^5.0.0",
     "markdownlint-cli": "^0.43.0",
     "nodemon": "^3.1.11",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^4.3.3"
   }
 }

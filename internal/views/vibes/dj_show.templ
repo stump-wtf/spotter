@@ -263,34 +263,34 @@ templ DJShow(dj *ent.DJ, cfg *config.Config) {
 // where we always have a DJ to populate
 templ DJShowFormFields(dj *ent.DJ) {
 	<!-- Name -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">Name <span class="text-error">*</span></span>
+			<span class="fieldset-label font-medium">Name <span class="text-error">*</span></span>
 		</label>
 		<input
 			type="text"
 			name="name"
-			class="input input-bordered w-full"
+			class="input w-full"
 			placeholder="e.g., Chill Vibes DJ, Party Starter"
 			required
 			value={ dj.Name }
 		/>
 		<label class="label">
-			<span class="label-text-alt text-base-content/60">A memorable name for this DJ personality</span>
+			<span class="fieldset-label text-base-content/60">A memorable name for this DJ personality</span>
 		</label>
 	</div>
 	<!-- System Prompt -->
-	<div class="form-control">
+	<div class="fieldset">
 		<label class="label">
-			<span class="label-text font-medium">System Prompt</span>
+			<span class="fieldset-label font-medium">System Prompt</span>
 		</label>
 		<textarea
 			name="system_prompt"
-			class="textarea textarea-bordered h-24 w-full font-mono text-sm"
+			class="textarea h-24 w-full font-mono text-sm"
 			placeholder="You are a DJ who specializes in creating the perfect mood..."
 		>{ dj.SystemPrompt }</textarea>
 		<label class="label">
-			<span class="label-text-alt text-base-content/60">Custom instructions for how this DJ should behave</span>
+			<span class="fieldset-label text-base-content/60">Custom instructions for how this DJ should behave</span>
 		</label>
 	</div>
 	<div class="divider">Filters</div>

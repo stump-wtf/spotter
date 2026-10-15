@@ -24,9 +24,9 @@ type TagInputConfig struct {
 }
 
 templ TagInput(cfg TagInputConfig) {
-	<div class="form-control" x-data={ tagInputData(cfg) }>
+	<div class="fieldset" x-data={ tagInputData(cfg) }>
 		<label class="label">
-			<span class="label-text font-medium">
+			<span class="fieldset-label font-medium">
 				if cfg.LabelIcon != "" {
 					<span class={ cfg.LabelIcon, "w-4 h-4 inline-block", cfg.LabelIconClass }></span>
 				}
@@ -95,7 +95,7 @@ templ TagInput(cfg TagInputConfig) {
 		</div>
 		if cfg.HelpText != "" {
 			<label class="label">
-				<span class="label-text-alt text-base-content/60">{ cfg.HelpText }</span>
+				<span class="fieldset-label text-base-content/60">{ cfg.HelpText }</span>
 			</label>
 		}
 	</div>

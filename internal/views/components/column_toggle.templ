@@ -21,7 +21,7 @@ templ ColumnToggleMenu(targetTableID string, options []ColumnOption) {
 				for _, opt := range options {
 					<li>
 						<label class="label cursor-pointer">
-							<span class="label-text">{ opt.Label }</span>
+							<span class="fieldset-label">{ opt.Label }</span>
 							<input type="checkbox" class="checkbox checkbox-sm column-toggle-checkbox" data-col-class={ opt.Value } checked?={ opt.DefaultVisible }/>
 						</label>
 					</li>

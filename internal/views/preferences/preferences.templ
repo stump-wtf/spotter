@@ -24,15 +24,15 @@ templ Appearance(user *ent.User, cfg *config.Config) {
 						</h3>
 						<form id="preferences-form" hx-post="/preferences/appearance" hx-swap="none" class="space-y-6 mt-4">
 							<!-- Theme Selection -->
-							<div class="form-control">
+							<div class="fieldset">
 								<label class="label">
-									<span class="label-text font-medium">Theme</span>
-									<span class="label-text-alt text-base-content/60">Choose your preferred color scheme</span>
+									<span class="fieldset-label font-medium">Theme</span>
+									<span class="fieldset-label text-base-content/60">Choose your preferred color scheme</span>
 								</label>
 								<select
 									name="theme"
 									id="theme-select"
-									class="select select-bordered w-full"
+									class="select w-full"
 									onchange="applyTheme(this.value)"
 								>
 									for _, theme := range cfg.AvailableThemes() {
@@ -41,10 +41,10 @@ templ Appearance(user *ent.User, cfg *config.Config) {
 								</select>
 							</div>
 							<!-- Pagination Size -->
-							<div class="form-control">
+							<div class="fieldset">
 								<label class="label">
-									<span class="label-text font-medium">Items Per Page</span>
-									<span class="label-text-alt text-base-content/60">Number of items to show per page</span>
+									<span class="fieldset-label font-medium">Items Per Page</span>
+									<span class="fieldset-label text-base-content/60">Number of items to show per page</span>
 								</label>
 								<input
 									type="number"
@@ -53,7 +53,7 @@ templ Appearance(user *ent.User, cfg *config.Config) {
 									min="10"
 									max="100"
 									step="5"
-									class="input input-bordered w-full max-w-xs"
+									class="input w-full max-w-xs"
 								/>
 							</div>
 							<div class="card-actions justify-end">

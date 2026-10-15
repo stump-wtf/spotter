@@ -1,6 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@source "../cmd/**/*.{html,templ,go}";
+@source "../internal/**/*.{html,templ,go}";
+@source not "../**/*_test.go";
+@plugin "daisyui" {
+  themes: all;
+}
 
 .htmx-request .htmx-indicator-hide,
 .htmx-request.htmx-indicator-hide {
