@@ -5,12 +5,15 @@ version: "3.9"
 
 services:
   mariadb:
-    image: mariadb:11
+    image: mariadb:13
     environment:
       MARIADB_DATABASE: spotter
       MARIADB_USER: spotter
       MARIADB_PASSWORD: spotter
       MARIADB_ROOT_PASSWORD: rootpassword
+      # Cross-major MariaDB upgrades refuse to start against an existing
+      # mariadb_data volume without this; it runs mariadb-upgrade on boot.
+      MARIADB_AUTO_UPGRADE: "1"
     volumes:
       - mariadb_data:/var/lib/mysql
     healthcheck:
